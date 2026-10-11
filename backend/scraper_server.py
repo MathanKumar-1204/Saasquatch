@@ -4,29 +4,59 @@ import sys
 import json
 import logging
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+
+# Ensure current directory is on sys.path for serverless execution
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(0, CURRENT_DIR)
 
 from search_engine import find_company_urls
 from website_scraper import scrape_company_details
 
-# Ensure unbuffered stdout/stderr
-sys.stdout.reconfigure(line_buffering=True)
-sys.stderr.reconfigure(line_buffering=True)
+# Ensure unbuffered stdout/stderr safely
+try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(line_buffering=True)
+except Exception:
+    pass
 
 # Enable Flask / Werkzeug request logging
 logging.basicConfig(level=logging.INFO)
 
-app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+TEMPLATE_DIR = os.path.join(CURRENT_DIR, "templates")
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 GROQ_MODELS = [
     "openai/gpt-oss-20b"
 ]
 
+@app.route("/", methods=["GET"])
+def index():
+    try:
+        return render_template("index.html")
+    except Exception:
+        fallback_path = os.path.join(CURRENT_DIR, "templates", "index.html")
+        if not os.path.exists(fallback_path):
+            fallback_path = os.path.join(CURRENT_DIR, "index.html")
+        if os.path.exists(fallback_path):
+            with open(fallback_path, "r", encoding="utf-8") as f:
+                return f.read(), 200, {"Content-Type": "text/html"}
+        return "<h1>SaaSquatch Leads Python Web Scraper API Active</h1>", 200
+
 @app.route("/api/health", methods=["GET"])
+@app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "online", "message": "SaaSquatch Leads Python Web Scraper API Active"})
+    return jsonify({
+        "status": "online", 
+        "service": "SaaSquatch Leads Python Web Scraper API",
+        "platform": "Vercel Serverless / Flask WSGI",
+        "groq_model": "openai/gpt-oss-20b"
+    })
 
 @app.route("/api/search_leads", methods=["POST", "OPTIONS"])
 def search_leads():

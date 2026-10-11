@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 import { saveUserSearch } from '../services/supabaseService';
+import { API_ENDPOINTS } from '../services/apiConfig';
 
 export const CompanyFinder = ({ 
   leads, 
@@ -61,7 +62,7 @@ export const CompanyFinder = ({
     setSearchStatusLog(`Searching live web and backend scraper for ${ind} companies...`);
 
     try {
-      const response = await fetch('http://localhost:5000/api/search_leads', {
+      const response = await fetch(API_ENDPOINTS.SEARCH_LEADS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ industry: ind, product: prod })

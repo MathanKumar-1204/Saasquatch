@@ -12,6 +12,7 @@ import {
   Key, 
   Bot 
 } from 'lucide-react';
+import { API_ENDPOINTS } from '../services/apiConfig';
 
 export const MailContentModal = ({ lead, onClose, groqKey, setGroqKey }) => {
   if (!lead) return null;
@@ -40,7 +41,7 @@ export const MailContentModal = ({ lead, onClose, groqKey, setGroqKey }) => {
     setIsGenerating(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/generate_email', {
+      const response = await fetch(API_ENDPOINTS.GENERATE_EMAIL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

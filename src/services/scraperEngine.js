@@ -1,9 +1,12 @@
 // Scraper Engine & Real Python Backend Connector for SaaSquatch AI (Caprae Capital)
 
+import { BACKEND_URL } from './apiConfig';
+
 const BACKEND_ENDPOINTS = [
-  "/api/scrape",                         // Vite Proxy route
-  "http://127.0.0.1:5000/api/scrape",    // Direct loopback IP
-  "http://localhost:5000/api/scrape"     // Direct localhost
+  `${BACKEND_URL}/api/scrape`,
+  `${BACKEND_URL}/api/search_leads`,
+  "/api/scrape",
+  "http://localhost:5000/api/scrape"
 ];
 
 export const scrapeDomainReal = async (input) => {
